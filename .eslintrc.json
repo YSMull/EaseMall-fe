@@ -1,0 +1,25 @@
+{
+    "root": true,
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module"
+    },
+    "env": {
+        "browser": true,
+        "node": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:vue/recommended"
+    ],
+    "plugins": ["html"],
+    "rules": {
+        "vue/html-self-closing": "off",
+        "indent": ["error", 4, {
+            "SwitchCase": 1
+        }],
+        "quotes": ["error", "single"],
+        "semi": ["error", "always"],
+        "no-console": ["error"]
+    }
+}
