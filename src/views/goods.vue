@@ -12,12 +12,23 @@
                   <p class="amount-label">数量</p>
                   <EAmount ref="eAmount" style="margin-right:4px;"/>
                 </div>
-                <Button :disabled="bought" v-if="(!this.$store.state.isseller || this.$store.state.isbuyer) && this.$route.name != 'snap_goods'" type="error" class="add2cart" @click="add2cart">加入购物车</Button>
+                <Button style="float:left;" :disabled="bought" v-if="(!this.$store.state.isseller || this.$store.state.isbuyer) && this.$route.name != 'snap_goods'" type="error" class="add2cart" @click="add2cart">
+                  <div v-if="bought">已购买</div>
+                  <div v-else>加入购物车</div>
+                </Button>
+                <a v-if="bought" style="line-height:35px; font-size:15px;" :href=" '/snapshot/' + this.snapId ">查看购买记录</a>
                 <Button v-if="this.$store.state.isseller" type="primary" class="add2cart" @click="edit">编辑</Button>           
             </Col>
         </Row>
         <Row>
-          {{ this.detail }}
+          <div class="e-detail">
+            <ul style="border-left: 1px solid #e8e8e8; border-bottom: 1px solid;">
+              <li class="e-detail-item">详情</li>
+            </ul>
+            <div style="font-size: 20px; margin: 10px;">
+            {{ this.detail }}
+            </div>
+          </div>
         </Row>
     </div>
 </template>
@@ -30,6 +41,21 @@
 .e-goods-img {
   width: 350px;
   border: solid 1px;
+}
+.e-detail-item {
+  border: 1px solid #e8e8e8;
+  border-bottom: none;
+  border-left: none;
+  font-size: 15px;
+  color: #828188;
+  width: 170px;
+  text-align: center;
+  background-color: #f5f5f5;
+  height: 42px;
+  line-height: 40px;
+}
+.e-detail {
+  margin-top: 20px;
 }
 .e-name {
   padding-bottom: 0.2em;
@@ -108,6 +134,7 @@ export default {
       picUrl: "",
       detail: "",
       bought: false,
+      snapId: null
     };
   },
   methods: {
@@ -165,7 +192,7 @@ export default {
           this.detail = goods.detail;
         });
     } else if (this.$route.name === 'snap_goods') {
-      this.$http.get("/snapshot/" + this.$route.params.snap_id)
+      this.$http.get("/snapshot/" + this.$route.params.snapId)
         .then(response => {
           let snapshot = response.data.data;
           this.name = snapshot.snapGoodsName;
@@ -183,8 +210,9 @@ export default {
           goodsId: this.id
         }
       }).then(res => {
-        if (res.data.data === true) {
+        if (res.data.data != null) {
           this.bought = true
+          this.snapId = res.data.data.id;
         }
       });
     }
