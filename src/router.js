@@ -17,7 +17,7 @@ const routers = [
     },
     {
         name: 'snap_goods',
-        path: '/snapshot/:snap_id',
+        path: '/snapshot/:snapId',
         meta: {
             title: '交易快照',
             privilege: 'buyer'
