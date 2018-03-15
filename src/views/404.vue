@@ -1,6 +1,6 @@
 <template>
 <div>
-  <span>404</span>
+  <span style="font-size:40px;">404</span>
 </div>
 </template>
 <script>

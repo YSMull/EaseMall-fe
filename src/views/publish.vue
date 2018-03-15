@@ -89,7 +89,7 @@ export default {
         name: '',
         description: '',
         detail: '',
-        price: '',
+        price: 0,
         picture: null,
         picUrl: ''
       },
@@ -249,7 +249,37 @@ export default {
         } else if (item === 'file') {
             this.formPublish.picUrl = '';
         }
+    },
+    initData() {
+        this.formPublish.name = '';
+        this.formPublish.description = '';
+        this.formPublish.price = 0;
+        this.formPublish.detail = '';
+        this.formPublish.picUrl = '';
+        this.uploadType = 'file';
+        this.loadingPic = false;
+    },
+    fetchData() {
+        if (this.$route.params.goods_id != undefined) {
+            this.$http.get("/goods/"+this.id)
+            .then(response => {
+                let goods = response.data.data
+                this.formPublish.name = goods.name;
+                this.formPublish.description = goods.description;
+                this.formPublish.price = goods.price;
+                this.formPublish.detail = goods.detail;
+                this.formPublish.picUrl = (goods.picUrl.startsWith('http') ? '' : (location.protocol + "//" + location.host)) + goods.picUrl;
+                this.uploadType = 'url';
+                this.loadingPic = true;
+            });
+        } else {
+            this.initData()
+        }
     }
+  },
+  watch: {
+    // 如果路由有变化，会再次执行该方法
+    '$route': 'fetchData'
   },
   mounted() {
     if (!this.$isLogin()) {
@@ -257,19 +287,7 @@ export default {
             name: 'home'
         });
     }
-    if (this.$route.params.goods_id != undefined) {
-        this.$http.get("/goods/"+this.id)
-        .then(response => {
-            let goods = response.data.data
-            this.formPublish.name = goods.name;
-            this.formPublish.description = goods.description;
-            this.formPublish.price = goods.price;
-            this.formPublish.detail = goods.detail;
-            this.formPublish.picUrl = (goods.picUrl.startsWith('http') ? '' : (location.protocol + "//" + location.host)) + goods.picUrl;
-            this.uploadType = 'url';
-            this.loadingPic = true;
-        });
-    }
+    this.fetchData()
     console.log('publish mounted');
   }
 };
