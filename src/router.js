@@ -19,7 +19,8 @@ const routers = [
         name: 'snap_goods',
         path: '/snapshot/:snap_id',
         meta: {
-            title: '交易快照'
+            title: '交易快照',
+            privilege: 'buyer'
         },
         component: (resolve) => require(['./views/goods.vue'], resolve)
     },
@@ -35,7 +36,8 @@ const routers = [
         name: 'cart',
         path: '/cart',
         meta: {
-            title: '购物车'
+            title: '购物车',
+            privilege: 'buyer'
         },
         component: (resolve) => require(['./views/cart.vue'], resolve)
     },
@@ -43,7 +45,8 @@ const routers = [
         name: 'account',
         path: '/account',
         meta: {
-            title: '账务'
+            title: '账务',
+            privilege: 'buyer'
         },
         component: (resolve) => require(['./views/account.vue'], resolve)
     },
@@ -59,7 +62,8 @@ const routers = [
         name: 'publish_edit',
         path: '/publish/:goods_id',
         meta: {
-            title: '发布'
+            title: '发布',
+            privilege: 'seller'
         },
         component: (resolve) => require(['./views/publish.vue'], resolve)
     },
@@ -67,7 +71,8 @@ const routers = [
         name: 'publish',
         path: '/publish',
         meta: {
-            title: '发布'
+            title: '发布',
+            privilege: 'seller'
         },
         component: (resolve) => require(['./views/publish.vue'], resolve)
     }

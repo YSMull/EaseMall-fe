@@ -89,7 +89,7 @@ export default {
                   // params.row.amount = amount
                   this.cartList[params.row._index].amount = amount;
                   this.$http.post("/changecart", {
-                    userId: this.$store.state.user_id,
+                    userId: this.$store.state.userId,
                     goodsId: params.row.goodsId,
                     amount: amount
                   });
@@ -146,7 +146,7 @@ export default {
     remove(row) {
       let that = this
       this.$http.post("/deletecart", {
-          userId: this.$store.state.user_id,
+          userId: this.$store.state.userId,
           goodsId: row.goodsId
         })
         .then(response => {
@@ -178,23 +178,6 @@ export default {
                 setTimeout(() => {
                   location.reload();
                 }, 500);
-              })
-              .catch(error => {
-                // todo 这里要区分error类型
-                // 这里可以放到main.js处理,但不要aop到axios里
-                this.$Modal.confirm({
-                  title: "您还没有登录，是否登录商城？",
-                  content: "",
-                  onOk: () => {
-                    this.$router.push({
-                      name: "login",
-                      query: {
-                        redirectUrl: window.location.href
-                      }
-                    });
-                  },
-                  onCancel: () => {}
-                });
               });
           },
           onCancel: () => {}
@@ -209,7 +192,6 @@ export default {
   },
   mounted() {
     console.log("cart mounted!");
-    // this.$allowBuyer();
     this.$http.get("/getcart")
     .then(response => {
       this.cartList = response.data.data;

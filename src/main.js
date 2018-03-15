@@ -1,18 +1,20 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
-import Routers from './router';
 import iView from 'iview';
+import Cookies from 'js-cookie';
+import VueLazyload from 'vue-lazyload';
 
 
+
+import Routers from './router';
 import Util from './libs/util';
 import App from './app.vue';
 import 'iview/dist/styles/iview.css';
 
-import Cookies from 'js-cookie';
-
-import VueLazyload from 'vue-lazyload';
-
+Vue.use(VueRouter);
+Vue.use(iView);
+Vue.use(Vuex);
 Vue.use(VueLazyload, {
     // preLoad: 1.3,
     // error: 'dist/error.png',
@@ -21,15 +23,6 @@ Vue.use(VueLazyload, {
     lazyComponent: true
 });
 
-// import { Button, Table } from 'iview';
-// Vue.component('Button', Button);
-// Vue.component('Table', Table);
-
-Vue.use(VueRouter);
-
-Vue.use(iView);
-
-Vue.use(Vuex);
 
 Vue.prototype.$util = Util;
 
@@ -43,28 +36,12 @@ Vue.prototype.$eraseCookie = () => {
     Cookies.remove('ES_token');
 };
 
-// 下面的url如果加载失败，将跳转到主页
-// 不在该列表内的url如果请求401，将清除Cookie后重新刷新页面，刷新页面后，应不会再发出请求
-let go_home_apis = [
-    '/api/getcart',
-    '/api/history',
-    '/api/snapshot'
-];
-
-let need_go_home = (apiList, target) => {
-    for (var i = 0; i < apiList.length; i++) {
-        if (target === apiList[i] || target.startsWith(apiList[i])) {
-            return true;
-        }
-    }
-    return false;
-}
-let confirm_login = (error) => {
+Vue.prototype.$confirm_login = (go_home=true) => {
     let title = '';
-    if (Cookies.get('ES_token') != undefined) {
-        title = '您的登录已经过期，是否重新登录商城？';
+    if (Vue.prototype.$isLogin) {
+        title = '您还没有登陆，是否登陆商城？';
     } else {
-        title = '您还没有登录，是否登录商城？';
+        title = '您的登录已经过期，是否重新登录商城？';
     }
     iView.Modal.confirm({
         title: title,
@@ -80,24 +57,60 @@ let confirm_login = (error) => {
         },
         onCancel: () => {
             Cookies.remove('ES_token');
-            let go_home = need_go_home(go_home_apis, error.config.url);
-            if (error != undefined && go_home) {
-                // 某些url请求失败如果不登录需要跳转回主页
-                router.push({
-                    name: 'home',
-                });
-            } else if (error != undefined && !go_home) {
-                // 有请求&&请求过期才需要刷新页面
-                window.location.reload();
-            } else {
-                // 没有任何请求，只是发现还没有登录，不需要刷新页面
-                null;
+            if (go_home) {
+                router.push({ name: 'home' });
             }
         }
     });
 };
 
-Vue.prototype.$confirm_login = confirm_login;
+/**
+ * 
+ * 可以保证mounted后获取到的store.state是实时的
+ */
+Vue.prototype.$validate = (to, from, next) => {
+    let privilege = to.meta.privilege;
+    if (Vue.prototype.$isLogin()) {
+        Vue.prototype.$http.get('/valid', {
+            params: {
+                __t: Date.parse(new Date())
+            }
+        }).then(response => {
+            store.state.islogin = true;
+            store.state.username = response.data.data.username;
+            store.state.userId = response.data.data.userId;
+            if (response.data.data.role === 0) {
+                store.state.isbuyer = true;
+            } else if (response.data.data.role === 1) {
+                store.state.isseller = true;
+            }
+            if (privilege === 'buyer') {
+                if (store.state.isbuyer === true) {
+                    next();
+                } else {
+                    // next(false);
+                    router.push({ name: 'home' });
+                }
+            } else if (privilege === 'seller') {
+                if (store.state.isseller === true) {
+                    next();
+                } else {
+                    // next(false);
+                    router.push({ name: 'home' });
+                }
+            } else {
+                next();
+            }
+        });
+    } else {
+        if (privilege === 'login') {
+            // next(false);
+            router.push({ name: 'home' });
+        } else {
+            next();
+        }
+    }
+};
 
 // 路由配置
 const RouterConfig = {
@@ -109,7 +122,12 @@ const router = new VueRouter(RouterConfig);
 router.beforeEach((to, from, next) => {
     iView.LoadingBar.start();
     Util.title(to.meta.title);
-    next();
+    // 每次刷新页面时需要请求一次/valid，并且保证了在组件mounted的时候可以获取到登陆状态
+    if (from.name === null) {
+        Vue.prototype.$validate(to, from, next);
+    } else {
+        next();
+    }
 });
 
 router.afterEach(() => {
@@ -121,11 +139,17 @@ router.afterEach(() => {
 // 1.不应该在没有登录的情况下访问需要登录的接口
 // 2.如果cookie已经过期，访问接口会出现401，则弹窗询问是否返回登录页面
 // 3.对于需要登录才能请求的接口，请求前需要判断是否已经登录
-Util.ajax.interceptors.response.use( response => {
+Util.ajax.interceptors.response.use(response => {
     return response;
 }, error => {
     if (error.response.status === 401) {
-        confirm_login(error);
+        // 此时一定是登陆过期，而不是越权请求
+        Vue.prototype.$confirm_login();
+    } else {
+        iView.Modal.error({
+            title: '服务器错误',
+            content: '请求"' + error.config.url + '"错误！\n' + error.response.data.msg,
+        });
     }
     //请求错误时做些事
     return Promise.reject(error);
@@ -137,8 +161,8 @@ Util.ajax.interceptors.response.use( response => {
 const store = new Vuex.Store({
     state: {
         islogin: false,
-        user_id: null,
-        user_name: null,
+        userId: null,
+        username: null,
         isbuyer: false,
         isseller: false
     },
@@ -155,24 +179,10 @@ const store = new Vuex.Store({
     }
 });
 
+Vue.prototype.$store1 = store;
 new Vue({
     el: '#app',
     router: router,
     store: store,
     render: h => h(App)
 });
-
-Vue.prototype.$allowSeller = () => {
-    if (!store.state.isseller) {
-        router.push({
-            name: 'home'
-        });
-    }
-};
-Vue.prototype.$allowBuyer = () => {
-    if (!store.state.isbuyer) {
-        router.push({
-            name: 'home'
-        });
-    }
-};

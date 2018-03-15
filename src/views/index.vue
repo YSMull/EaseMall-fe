@@ -35,7 +35,6 @@
 
 </template>
 <style scoped>
-
 .index {
   width: 80%;
   margin: auto;
@@ -52,7 +51,7 @@
 
 <script>
 import Ecard from "../common/e-card.vue";
-import Cookies from "js-cookie";
+import Vue from 'vue';
 export default {
   components: {
     Ecard
@@ -61,29 +60,29 @@ export default {
     return {
       goodsList: [],
       filterGoodsList: [],
-      region: 'all',
-      searchText: ''
+      region: "all",
+      searchText: ""
     };
   },
   methods: {
     changeRegion: function(msg) {
-      this.search()
+      this.search();
     },
     changeRegion1: function(msg) {
-      this.search()
+      this.search();
     },
     search: function() {
       this.filterGoodsList = this.goodsList.filter(e => {
-        if (this.region === 'all') {
-          return e.name.indexOf(this.searchText) > -1            
-        } else if(this.region === 'unpurchase') {
-          return (e.name.indexOf(this.searchText) > -1) && (e.bought == false)
-        } else if(this.region === 'bought') {
-          return (e.name.indexOf(this.searchText) > -1) && (e.bought == true)
-        } else if(this.region === 'sold') {
-          return (e.name.indexOf(this.searchText) > -1) && (e.hasSold > 0)
+        if (this.region === "all") {
+          return e.name.indexOf(this.searchText) > -1;
+        } else if (this.region === "unpurchase") {
+          return e.name.indexOf(this.searchText) > -1 && e.bought == false;
+        } else if (this.region === "bought") {
+          return e.name.indexOf(this.searchText) > -1 && e.bought == true;
+        } else if (this.region === "sold") {
+          return e.name.indexOf(this.searchText) > -1 && e.hasSold > 0;
         }
-      })
+      });
     }
   },
   beforeMount() {
@@ -94,9 +93,8 @@ export default {
     console.log("index mounted");
     let goods_task = this.$http.get("/goods");
     let task = [goods_task];
-    // [判断登录机制]：如果存在该cookie，假设已经登录，至于后续请求是否能成功，让后端判断，如果失败进行再登录提示
-    // 如果cookie失效了，要统一处理一下，删除cookie再刷新网页
-    if (this.$isLogin()) {
+
+    if (this.$store.state.isbuyer === true) {
       let pr_task = this.$http.get("/history");
       task.push(pr_task);
     }
@@ -119,8 +117,8 @@ export default {
         });
       }
       this.goodsList = goods_list;
-      this.filterGoodsList = goods_list
-    })
+      this.filterGoodsList = goods_list;
+    });
   }
 };
 </script>

@@ -71,9 +71,7 @@
 </style>
 
 <script>
-
-import Bus from "../bus.js";
-import qs from "qs"
+import Vue from "vue";
 import EImage from "../common/e-img.vue";
 export default {
   components: {
@@ -259,9 +257,6 @@ export default {
             name: 'home'
         });
     }
-    Bus.$on("validate-complete", () => {
-        this.$allowSeller();
-    })
     if (this.$route.params.goods_id != undefined) {
         this.$http.get("/goods/"+this.id)
         .then(response => {

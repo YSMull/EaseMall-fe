@@ -129,7 +129,7 @@ export default {
           content: "",
           onOk: () => {
             this.$http.post("/addcart", {
-                userId: this.$store.state.user_id,
+                userId: this.$store.state.userId,
                 goodsId: this.id,
                 amount: this.getAmount()
               })
@@ -143,7 +143,7 @@ export default {
           onCancel: () => {}
         });
       } else {
-        this.$confirm_login();
+        this.$confirm_login(false);
       }
     }
   },
@@ -155,17 +155,14 @@ export default {
     // const data = new FormData();
     // data.append("ids", [this.id]);
     if (this.$route.name === 'goods') {
-      this.$http.post("/goods/query", qs.stringify({
-          ids: this.id
-        }), {
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        })
+      this.$http.get("/goods/" + this.id)
         .then(response => {
-          this.name = response.data[0].name;
-          this.description = response.data[0].description;
-          this.price = response.data[0].price;
-          this.picUrl = response.data[0].picUrl;
-          this.detail = response.data[0].detail;
+          let goods = response.data.data;
+          this.name = goods.name;
+          this.description = goods.description;
+          this.price = goods.price;
+          this.picUrl = goods.picUrl;
+          this.detail = goods.detail;
         });
     } else if (this.$route.name === 'snap_goods') {
       this.$http.get("/snapshot/" + this.$route.params.snap_id)
@@ -180,8 +177,7 @@ export default {
           console.log(response)
         });
     }
-    // fixme: seller页面也不应该发送
-    if (this.$isLogin() && this.$route.name != 'snap_goods') {
+    if (this.$store.state.isbuyer && this.$route.name != 'snap_goods') {
       this.$http.get('hasbought', {
         params: {
           goodsId: this.id

@@ -73,7 +73,7 @@ export default {
               if (response.data.code == 0) {
                 this.$Message.success("登录成功!");
                 console.log("user_id:" + response.data.data.user_id)
-                this.$store.state.user_id = response.data.data.user_id
+                this.$store.state.userId = response.data.data.user_id
                 if (this.$route.query.redirectUrl) {
                   location.href=this.$route.query.redirectUrl
                 } else {
@@ -85,9 +85,6 @@ export default {
                 this.$Message.error("登录失败!");
               }
             })
-            .catch(error => {
-              this.$Message.error("服务端错误!");
-            });
         }
       });
     }
