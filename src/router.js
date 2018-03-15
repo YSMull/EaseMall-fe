@@ -59,21 +59,23 @@ const routers = [
         component: (resolve) => require(['./views/404.vue'], resolve)
     },
     {
-        name: 'publish_edit',
-        path: '/publish/:goods_id',
-        meta: {
-            title: '发布',
-            privilege: 'seller'
-        },
-        component: (resolve) => require(['./views/publish.vue'], resolve)
-    },
-    {
         name: 'publish',
         path: '/publish',
         meta: {
             title: '发布',
             privilege: 'seller'
         },
+        children: [
+            {
+                name: 'publish_edit',
+                path: 'eidt/:goods_id',
+                meta: {
+                    title: '发布(编辑)',
+                    privilege: 'seller'
+                },
+                component: (resolve) => require(['./views/publish.vue'], resolve)
+            },
+        ],
         component: (resolve) => require(['./views/publish.vue'], resolve)
     }
 ];
