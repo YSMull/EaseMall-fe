@@ -40,10 +40,15 @@ export default {
           align: "right",
           render: (h, params) => {
             return h(
-              "a",
+              "router-link",
               {
-                domProps: {
-                  href: "/goods/" + params.row.goodsId
+                props: {
+                  to : {
+                    name: 'goods',
+                    params: {
+                      goodsId: params.row.goodsId
+                    }
+                  }
                 }
               },
               [
@@ -63,10 +68,15 @@ export default {
           title: "商品信息",
           render: (h, params) => {
             return h(
-              "a",
+              "router-link",
               {
-                domProps: {
-                  href: "/goods/" + params.row.goodsId
+                props: {
+                  to : {
+                    name: 'goods',
+                    params: {
+                      goodsId: params.row.goodsId
+                    }
+                  }
                 }
               },
               [h("span", {}, params.row.goodsName)]

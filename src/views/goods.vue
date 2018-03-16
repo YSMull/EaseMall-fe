@@ -16,7 +16,7 @@
                   <div v-if="bought">已购买</div>
                   <div v-else>加入购物车</div>
                 </Button>
-                <a v-if="bought" style="line-height:35px; font-size:15px;" :href=" '/snapshot/' + this.snapId ">查看购买记录</a>
+                <router-link v-if="bought" style="line-height:35px; font-size:15px;" :to="{name: 'snap_goods', params: {snapId: this.snapId}} ">查看购买记录</router-link>
                 <Button v-if="this.$store.state.isseller" type="primary" class="add2cart" @click="edit">编辑</Button>           
             </Col>
         </Row>
@@ -111,7 +111,7 @@
 import EAmount from "../common/e-amount.vue";
 import EImage from "../common/e-img.vue";
 import Cookies from "js-cookie";
-import qs from "qs"
+
 export default {
   components: {
     EAmount,
@@ -127,7 +127,7 @@ export default {
         maskColor: "gray",
         maskOpacity: 0.2
       },
-      id: Number.parseInt(this.$route.params.id),
+      goodsId: "",
       name: "",
       description: "",
       price: "",
@@ -145,7 +145,7 @@ export default {
       this.$router.push({
         name: "publish_edit",
         params: {
-          goods_id: this.id
+          goodsId: this.goodsId
         }
       });
     },
@@ -155,9 +155,10 @@ export default {
           title: "确认加入购物车？",
           content: "",
           onOk: () => {
-            this.$http.post("/addcart", {
+            this.$http
+              .post("/addcart", {
                 userId: this.$store.state.userId,
-                goodsId: this.id,
+                goodsId: this.goodsId,
                 amount: this.getAmount()
               })
               .then(response => {
@@ -172,18 +173,22 @@ export default {
       } else {
         this.$confirm_login(false);
       }
-    }
-  },
-  mounted() {
-    console.log("goods mounted");
-    
-    //todo: 如果没有这个goods，那么应该做事情
-
-    // const data = new FormData();
-    // data.append("ids", [this.id]);
-    if (this.$route.name === 'goods') {
-      this.$http.get("/goods/" + this.id)
-        .then(response => {
+    },
+    initData() {
+      this.goodsId = this.$route.params.goodsId;
+      this.name = "";
+      this.description = "";
+      this.price = "";
+      this.picUrl = "";
+      this.detail = "";
+      this.bought = false;
+      this.snapId = this.$route.params.snapId;
+    },
+    fetchData() {
+      //todo: 如果没有这个goods，那么应该做事情
+      this.initData();
+      if (this.$route.name === "goods") {
+        this.$http.get("/goods/" + this.goodsId).then(response => {
           let goods = response.data.data;
           this.name = goods.name;
           this.description = goods.description;
@@ -191,31 +196,41 @@ export default {
           this.picUrl = goods.picUrl;
           this.detail = goods.detail;
         });
-    } else if (this.$route.name === 'snap_goods') {
-      this.$http.get("/snapshot/" + this.$route.params.snapId)
-        .then(response => {
-          let snapshot = response.data.data;
-          this.name = snapshot.snapGoodsName;
-          this.description = snapshot.snapDescription;
-          this.price = snapshot.snapPrice;
-          this.picUrl = snapshot.snapPicUrl;
-          this.detail = snapshot.snapDetail;
-          this.$refs.eAmount.amount = snapshot.amount
-          console.log(response)
-        });
+      } else if (this.$route.name === "snap_goods") {
+        this.$http
+          .get("/snapshot/" + this.$route.params.snapId)
+          .then(response => {
+            let snapshot = response.data.data;
+            this.name = snapshot.snapGoodsName;
+            this.description = snapshot.snapDescription;
+            this.price = snapshot.snapPrice;
+            this.picUrl = snapshot.snapPicUrl;
+            this.detail = snapshot.snapDetail;
+            this.$refs.eAmount.amount = snapshot.amount;
+          });
+      }
+      if (this.$store.state.isbuyer && this.$route.name != "snap_goods") {
+        this.$http.get("hasbought", {
+            params: {
+              goodsId: this.goodsId
+            }
+          })
+          .then(res => {
+            if (res.data.data != null) {
+              this.bought = true;
+              this.snapId = res.data.data.id;
+            }
+          });
+      }
     }
-    if (this.$store.state.isbuyer && this.$route.name != 'snap_goods') {
-      this.$http.get('hasbought', {
-        params: {
-          goodsId: this.id
-        }
-      }).then(res => {
-        if (res.data.data != null) {
-          this.bought = true
-          this.snapId = res.data.data.id;
-        }
-      });
-    }
+  },
+  watch: {
+    // 如果路由有变化，会再次执行该方法
+    $route: "fetchData"
+  },
+  mounted() {
+    console.log("goods mounted");
+    this.fetchData();
   }
 };
 </script>

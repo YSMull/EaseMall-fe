@@ -32,10 +32,15 @@ export default {
           align: "right",
           render: (h, params) => {
             return h(
-              "a",
+              "router-link",
               {
-                domProps: {
-                  href: "/snapshot/" + params.row.id
+                props: {
+                  to : {
+                    name: 'snap_goods',
+                    params: {
+                      snapId: params.row.id
+                    }
+                  }
                 }
               },
               [
@@ -56,10 +61,15 @@ export default {
           width: "192px",
           render: (h, params) => {
             return h(
-              "a",
+              "router-link",
               {
-                domProps: {
-                  href: "/snapshot/" + params.row.id
+                props: {
+                  to : {
+                    name: 'snap_goods',
+                    params: {
+                      snapId: params.row.id
+                    }
+                  }
                 }
               },
               [h("span", {}, params.row.snapGoodsName)]
