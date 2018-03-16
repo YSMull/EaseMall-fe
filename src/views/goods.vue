@@ -10,7 +10,7 @@
                 <h1 class="e-price" v-text="price"/>
                 <div v-if="this.$store.state.isbuyer && !bought" class="amount-area">
                   <p class="amount-label">数量</p>
-                  <EAmount ref="eAmount" style="margin-right:4px;"/>
+                  <EAmount :disabled="this.$route.name === 'snap_goods'" ref="eAmount" style="margin-right:4px;"/>
                 </div>
                 <Button style="float:left;" :disabled="bought" v-if="(!this.$store.state.isseller || this.$store.state.isbuyer) && this.$route.name != 'snap_goods'" type="error" class="add2cart" @click="add2cart">
                   <div v-if="bought">已购买</div>

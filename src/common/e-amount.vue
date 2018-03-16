@@ -1,7 +1,7 @@
 <template>
     <div class="e-amount">
-        <input v-model="amount" class="amount-input"></input>
-        <span class="amount-btn">
+        <input :disabled="disabled" v-model="amount" class="amount-input"></input>
+        <span v-if="!disabled" class="amount-btn">
             <span @click="increase" class="increase">
                 <Icon style="margin-left: 1px" type="chevron-up"></Icon>
             </span>
@@ -66,6 +66,10 @@ export default {
       default: 1
     },
     cartMode: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     }
