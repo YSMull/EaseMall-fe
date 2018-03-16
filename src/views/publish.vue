@@ -55,7 +55,7 @@
                 <Input number v-model="formPublish.price" placeholder="请输入商品定价..."/>
             </FormItem>
             <FormItem>
-                <Button v-if="this.$route.params.goods_id != undefined" @click="handleSave">保存</Button>
+                <Button v-if="this.$route.params.goodsId != undefined" @click="handleSave">保存</Button>
                 <Button v-else @click="handlePublish">发布</Button>
             </FormItem>
          </Form>
@@ -79,7 +79,7 @@ export default {
   },
   data() {
     return {
-      id: this.$route.params.goods_id,
+      id: this.$route.params.goodsId,
       picLoadError: false,
       picLoadSuccess: false,
       loadingPic: false,
@@ -183,8 +183,8 @@ export default {
     getFormData() {
         let picture = this.formPublish.picture
         var formData = new FormData()
-        if (this.$route.params.goods_id != undefined) {
-            formData.append("id", this.$route.params.goods_id)
+        if (this.$route.params.goodsId != undefined) {
+            formData.append("id", this.$route.params.goodsId)
         }
         // formData.append("Goods", this.formPublish)
         formData.append("name", this.formPublish.name)
@@ -210,7 +210,7 @@ export default {
                             this.$router.push({
                                 name: "goods",
                                 params: {
-                                    id: res.data.data.id
+                                    goodsId: res.data.data.id
                                 }
                             });
                         })
@@ -233,7 +233,7 @@ export default {
                             this.$router.push({
                                 name: "goods",
                                 params: {
-                                    id: this.id
+                                    goodsId: this.$route.params.goodsId
                                 }
                             });
                         })
@@ -260,8 +260,8 @@ export default {
         this.loadingPic = false;
     },
     fetchData() {
-        if (this.$route.params.goods_id != undefined) {
-            this.$http.get("/goods/"+this.id)
+        if (this.$route.params.goodsId != undefined) {
+            this.$http.get("/goods/"+this.$route.params.goodsId)
             .then(response => {
                 let goods = response.data.data
                 this.formPublish.name = goods.name;

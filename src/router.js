@@ -9,7 +9,7 @@ const routers = [
     },
     {
         name: 'goods',
-        path: '/goods/:id',
+        path: '/goods/:goodsId',
         meta: {
             title: '商品信息'
         },
@@ -68,7 +68,7 @@ const routers = [
         children: [
             {
                 name: 'publish_edit',
-                path: 'eidt/:goods_id',
+                path: 'eidt/:goodsId',
                 meta: {
                     title: '发布(编辑)',
                     privilege: 'seller'

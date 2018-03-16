@@ -223,7 +223,7 @@ export default {
       this.$router.push({
         name: "goods",
         params: {
-          id: this.id
+          goodsId: this.id
         }
       });
     },
