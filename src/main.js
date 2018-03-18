@@ -32,8 +32,13 @@ Vue.prototype.$isLogin = () => {
     return Cookies.get('ES_token') != undefined;
 };
 
-Vue.prototype.$eraseCookie = () => {
+Vue.prototype.$eraseLogin = () => {
     Cookies.remove('ES_token');
+    store.state.islogin = false;
+    store.state.username = null;
+    store.state.userId = null;
+    store.state.isbuyer = false;
+    store.state.isseller = false;
 };
 
 Vue.prototype.$confirm_login = (go_home=true) => {
@@ -47,7 +52,7 @@ Vue.prototype.$confirm_login = (go_home=true) => {
         title: title,
         content: '',
         onOk: () => {
-            Cookies.remove('ES_token');
+            Vue.prototype.$eraseLogin();
             router.push({
                 name: 'login',
                 query: {
@@ -57,6 +62,9 @@ Vue.prototype.$confirm_login = (go_home=true) => {
         },
         onCancel: () => {
             Cookies.remove('ES_token');
+            store.state.islogin = false;
+            store.state.isbuyer = false;
+            store.state.isseller = false;
             if (go_home) {
                 router.push({ name: 'home' });
             }
@@ -101,10 +109,12 @@ Vue.prototype.$validate = (to, from, next) => {
             } else {
                 next();
             }
+        }).catch(() => {
+            // 登陆过期了
+            Vue.prototype.$eraseLogin();
         });
     } else {
-        if (privilege === 'login') {
-            // next(false);
+        if (privilege != undefined) {
             router.push({ name: 'home' });
         } else {
             next();
