@@ -77,8 +77,6 @@ export default {
                 if (this.$route.query.redirectUrl) {
                   location.href=this.$route.query.redirectUrl
                 } else {
-                  // this.$router.push({name: 'home'})
-                  // location.reload();
                   location.href = '//' +location.host
                 }
               } else {
