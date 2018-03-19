@@ -154,7 +154,10 @@ Util.ajax.interceptors.response.use(response => {
 }, error => {
     if (error.response.status === 401) {
         // 此时一定是登陆过期，而不是越权请求
-        Vue.prototype.$confirm_login();
+        setTimeout(() => {
+            Vue.prototype.$confirm_login();
+        }, 450);
+        
     } else {
         iView.Modal.error({
             title: '服务器错误',
