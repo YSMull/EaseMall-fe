@@ -19,7 +19,7 @@
 </style>
 
 <script>
-import moment from 'moment'
+import moment from "moment";
 
 export default {
   data() {
@@ -35,8 +35,8 @@ export default {
               "router-link",
               {
                 props: {
-                  to : {
-                    name: 'snap_goods',
+                  to: {
+                    name: "snap_goods",
                     params: {
                       snapId: params.row.id
                     }
@@ -64,8 +64,8 @@ export default {
               "router-link",
               {
                 props: {
-                  to : {
-                    name: 'snap_goods',
+                  to: {
+                    name: "snap_goods",
                     params: {
                       snapId: params.row.id
                     }
@@ -86,7 +86,7 @@ export default {
                   type: "text"
                 }
               },
-              '¥' + params.row.snapPrice
+              "¥" + params.row.snapPrice
             );
           }
         },
@@ -104,7 +104,7 @@ export default {
                   type: "text"
                 }
               },
-              '¥' + params.row.snapPrice * params.row.amount
+              "¥" + params.row.snapPrice * params.row.amount
             );
           }
         },
@@ -119,7 +119,7 @@ export default {
                   type: "text"
                 }
               },
-              moment(String(params.row.purchaseTime)).format('YYYY/MM/DD hh:mm')
+              moment(String(params.row.purchaseTime)).format("YYYY/MM/DD hh:mm")
             );
           }
         }
@@ -128,16 +128,20 @@ export default {
       loading: true
     };
   },
-  methods: {},
+  methods: {
+    fetchData() {
+      this.$http.get("/history").then(response => {
+        this.recordList = response.data.data;
+        this.amount = this.recordList.reduce((total, item) => {
+          return total + item.snapPrice * item.amount;
+        }, 0);
+        this.loading = false;
+      });
+    }
+  },
   mounted() {
     console.log("record mounted!");
-    this.$http.get("/history")
-    .then(response => {
-      this.recordList = response.data.data;
-      this.amount = this.recordList.reduce((total, item) => 
-      {return total + item.snapPrice*item.amount}, 0)
-      this.loading = false;
-    })
+    this.fetchData();
   }
 };
 </script>

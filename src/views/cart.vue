@@ -208,14 +208,17 @@ export default {
           content: "未购买任何物品"
         });
       }
+    },
+    fetchData() {
+      this.$http.get("/getcart").then(response => {
+        this.cartList = response.data.data;
+        this.loading = false;
+      });
     }
   },
   mounted() {
     console.log("cart mounted!");
-    this.$http.get("/getcart").then(response => {
-      this.cartList = response.data.data;
-      this.loading = false;
-    });
+    this.fetchData();
   }
 };
 </script>
