@@ -33,7 +33,7 @@ export default {
   methods: {
     onSelect(item) {
       if (item === "home") {
-        this.$router.push({ name: "home" });
+        this.$goHome();
       } else if (item === "logout") {
         this.logout();
       } else if (item === "shopcart") {

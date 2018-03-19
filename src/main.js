@@ -41,9 +41,17 @@ Vue.prototype.$eraseLogin = () => {
     store.state.isseller = false;
 };
 
+Vue.prototype.$goHome = () => {
+    if (router.currentRoute.name === 'home') {
+        location.reload();
+    } else {
+        router.push({ name: 'home' });
+    }
+};
+
 Vue.prototype.$confirm_login = (go_home=true) => {
     let title = '';
-    if (Vue.prototype.$isLogin) {
+    if (Vue.prototype.$isLogin()) {
         title = '您还没有登陆，是否登陆商城？';
     } else {
         title = '您的登录已经过期，是否重新登录商城？';
@@ -66,7 +74,7 @@ Vue.prototype.$confirm_login = (go_home=true) => {
             store.state.isbuyer = false;
             store.state.isseller = false;
             if (go_home) {
-                router.push({ name: 'home' });
+                Vue.prototype.$goHome();
             }
         }
     });
@@ -97,14 +105,14 @@ Vue.prototype.$validate = (to, from, next) => {
                     next();
                 } else {
                     // next(false);
-                    router.push({ name: 'home' });
+                    Vue.prototype.$goHome();
                 }
             } else if (privilege === 'seller') {
                 if (store.state.isseller === true) {
                     next();
                 } else {
                     // next(false);
-                    router.push({ name: 'home' });
+                    Vue.prototype.$goHome();
                 }
             } else {
                 next();
@@ -115,7 +123,7 @@ Vue.prototype.$validate = (to, from, next) => {
         });
     } else {
         if (privilege != undefined) {
-            router.push({ name: 'home' });
+            Vue.prototype.$goHome();
         } else {
             next();
         }
@@ -130,6 +138,7 @@ const RouterConfig = {
 const router = new VueRouter(RouterConfig);
 
 router.beforeEach((to, from, next) => {
+    // 同一个页面的第二次push不会出发beforeEach
     iView.LoadingBar.start();
     Util.title(to.meta.title);
     // 每次刷新页面时需要请求一次/valid，并且保证了在组件mounted的时候可以获取到登陆状态
