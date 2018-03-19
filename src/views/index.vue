@@ -51,7 +51,7 @@
 
 <script>
 import Ecard from "../common/e-card.vue";
-import Vue from 'vue';
+import Vue from "vue";
 export default {
   components: {
     Ecard
@@ -83,42 +83,51 @@ export default {
           return e.name.indexOf(this.searchText) > -1 && e.hasSold > 0;
         }
       });
+    },
+    fetchData() {
+      let goods_task = null;
+      if (this.$store.state.isseller === true) {
+        goods_task = this.$http.get("/goods/published");
+      } else {
+        goods_task = this.$http.get("/goods/all");
+      }
+      
+      let task = [goods_task];
+
+      if (this.$store.state.isbuyer === true) {
+        let pr_task = this.$http.get("/history");
+        task.push(pr_task);
+      }
+      var p = Promise.all(task);
+      p.then(res => {
+        let goods_list = res[0].data;
+        goods_list = goods_list.map(item => {
+          item.bought = false;
+          return item;
+        });
+        if (res.length >= 2) {
+          let purchase_record = res[1].data.data;
+          purchase_record.forEach(item => {
+            let gid = item.goodsId;
+            goods_list.forEach(goods => {
+              if (goods.id == gid) {
+                goods.bought = true;
+              }
+            });
+          });
+        }
+        this.goodsList = goods_list;
+        this.filterGoodsList = goods_list;
+      });
     }
   },
   beforeMount() {
     this.$Spin.show();
   },
   mounted() {
-    this.$Spin.hide();
     console.log("index mounted");
-    let goods_task = this.$http.get("/goods");
-    let task = [goods_task];
-
-    if (this.$store.state.isbuyer === true) {
-      let pr_task = this.$http.get("/history");
-      task.push(pr_task);
-    }
-    var p = Promise.all(task);
-    p.then(res => {
-      let goods_list = res[0].data;
-      goods_list = goods_list.map(item => {
-        item.bought = false;
-        return item;
-      });
-      if (res.length >= 2) {
-        let purchase_record = res[1].data.data;
-        purchase_record.forEach(item => {
-          let gid = item.goodsId;
-          goods_list.forEach(goods => {
-            if (goods.id == gid) {
-              goods.bought = true;
-            }
-          });
-        });
-      }
-      this.goodsList = goods_list;
-      this.filterGoodsList = goods_list;
-    });
+    this.$Spin.hide();
+    this.fetchData();
   }
 };
 </script>
