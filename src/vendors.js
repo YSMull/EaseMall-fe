@@ -6,3 +6,4 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import imagesLoaded from 'vue-images-loaded';
 import VueLazyload from 'vue-lazyload';
+import moment from 'moment';
