@@ -100,7 +100,7 @@ export default {
       }
       var p = Promise.all(task);
       p.then(res => {
-        let goods_list = res[0].data;
+        let goods_list = res[0].data.data;
         goods_list = goods_list.map(item => {
           item.bought = false;
           return item;

@@ -51,7 +51,7 @@ Vue.prototype.$goHome = () => {
 
 Vue.prototype.$confirm_login = (go_home=true) => {
     let title = '';
-    if (Vue.prototype.$isLogin()) {
+    if (!Vue.prototype.$isLogin()) {
         title = '您还没有登陆，是否登陆商城？';
     } else {
         title = '您的登录已经过期，是否重新登录商城？';
